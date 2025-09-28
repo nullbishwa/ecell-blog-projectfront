@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://ecell-blog-project-1-5t3c.onrender.com", // your backend
+  baseURL: "https://ecell-blog-project-1-5t3c.onrender.com/api", // your backend
 });
 
 
@@ -14,3 +14,4 @@ API.interceptors.request.use((req) => {
 })
 
 export default API
+
