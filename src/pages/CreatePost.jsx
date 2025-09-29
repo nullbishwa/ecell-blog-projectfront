@@ -1,36 +1,41 @@
-import React, { useState, useContext } from "react"
-import { useNavigate } from "react-router-dom"
-import api from "../api"
-import { AuthContext } from "../context/AuthContext"
-import FileUpload from "../components/FileUpload"
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
+import { AuthContext } from "../context/AuthContext";
+import FileUpload from "../components/FileUpload";
 
 export default function CreatePost() {
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState("")
-  const [file, setFile] = useState(null)
-  const { user } = useContext(AuthContext)
-  const navigate = useNavigate()
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [files, setFiles] = useState([]); // multiple files
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const formData = new FormData()
-      formData.append("title", title)
-      formData.append("content", content)
-      if (file) formData.append("file", file)
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+
+      // Append all selected files
+      files.forEach((file) => {
+        formData.append("media", file);
+      });
 
       await api.post("/posts", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      })
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      navigate("/")
+      navigate("/");
     } catch (err) {
-      console.error("Error creating post", err)
-      alert("Error creating post")
+      console.error("Error creating post", err);
+      alert("Error creating post");
     }
-  }
+  };
 
-  if (!user) return <p className="p-4">You must be logged in to create posts.</p>
+  if (!user)
+    return <p className="p-4">You must be logged in to create posts.</p>;
 
   return (
     <div className="container mx-auto p-4 max-w-lg">
@@ -49,7 +54,8 @@ export default function CreatePost() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <FileUpload onFileChange={setFile} />
+        {/* File upload with multiple preview */}
+        <FileUpload onFilesChange={setFiles} />
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -58,5 +64,5 @@ export default function CreatePost() {
         </button>
       </form>
     </div>
-  )
+  );
 }
