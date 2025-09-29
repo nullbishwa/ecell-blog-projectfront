@@ -5,20 +5,19 @@ export default function FileUpload({ onFilesChange }) {
 
   const handleChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      onFilesChange(files); // Pass array of files to parent
+    onFilesChange(files); // pass array of files to parent
 
-      // Generate previews
-      const newPreviews = files.map((file) => {
-        return {
-          file,
-          url: URL.createObjectURL(file),
-          type: file.type.startsWith("image") ? "image" : "video",
+    const newPreviews = files.map((file) => {
+      const reader = new FileReader();
+      return new Promise((resolve) => {
+        reader.onloadend = () => {
+          resolve({ url: reader.result, type: file.type });
         };
+        reader.readAsDataURL(file);
       });
+    });
 
-      setPreviews(newPreviews);
-    }
+    Promise.all(newPreviews).then((results) => setPreviews(results));
   };
 
   return (
@@ -30,26 +29,27 @@ export default function FileUpload({ onFilesChange }) {
         onChange={handleChange}
         className="border p-2 rounded w-full"
       />
-
-      {/* Previews */}
       {previews.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 mt-2">
-          {previews.map((preview, idx) => (
-            <div key={idx} className="relative">
-              {preview.type === "image" ? (
-                <img
-                  src={preview.url}
-                  alt={`Preview ${idx + 1}`}
-                  className="max-h-48 w-full rounded object-cover"
-                />
-              ) : (
-                <video controls className="max-h-48 w-full rounded">
-                  <source src={preview.url} type={preview.file.type} />
-                  Your browser does not support the video tag.
-                </video>
-              )}
-            </div>
-          ))}
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          {previews.map((file, idx) =>
+            file.type.startsWith("image") ? (
+              <img
+                key={idx}
+                src={file.url}
+                alt={`Preview ${idx}`}
+                className="max-h-48 w-full object-cover rounded"
+              />
+            ) : (
+              <video
+                key={idx}
+                controls
+                className="max-h-48 w-full rounded object-cover"
+              >
+                <source src={file.url} type={file.type} />
+                Your browser does not support the video tag.
+              </video>
+            )
+          )}
         </div>
       )}
     </div>
