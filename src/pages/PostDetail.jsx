@@ -24,7 +24,7 @@ export default function PostDetail() {
   const addComment = async (text) => {
     try {
       const res = await api.post(`/posts/${post._id}/comment`, { text });
-      setPost(res.data); // backend returns updated post with new comment
+      setPost(res.data); // backend returns updated post
     } catch (err) {
       alert("Error adding comment");
     }
@@ -39,23 +39,18 @@ export default function PostDetail() {
 
       {/* Media Display */}
       {post.media && post.media.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {post.media.map((file, index) =>
-            file.type.startsWith("image") ? (
+        <div className="space-y-4 mb-6">
+          {post.media.map((file, i) =>
+            file.type === "image" ? (
               <img
-                key={index}
+                key={i}
                 src={file.url}
                 alt={post.title}
                 className="max-h-96 rounded object-cover w-full"
               />
             ) : (
-              <video
-                key={index}
-                controls
-                className="max-h-96 rounded w-full"
-                preload="metadata"
-              >
-                <source src={file.url} type={file.type} />
+              <video key={i} controls className="max-h-96 rounded w-full">
+                <source src={file.url} type={file.mimeType} />
                 Your browser does not support the video tag.
               </video>
             )
@@ -63,10 +58,7 @@ export default function PostDetail() {
         </div>
       )}
 
-      {/* Like Button */}
       <LikeButton initialLikes={post.likes?.length || 0} />
-
-      {/* Comments Section */}
       <h2 className="mt-6 font-bold">Comments</h2>
       <CommentList comments={post.comments || []} />
       <CommentForm onSubmit={addComment} />
