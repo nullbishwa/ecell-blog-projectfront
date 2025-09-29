@@ -7,7 +7,7 @@ import FileUpload from "../components/FileUpload";
 export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [files, setFiles] = useState([]); // For multiple files
+  const [files, setFiles] = useState([]); // multiple files
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ export default function CreatePost() {
       formData.append("title", title);
       formData.append("content", content);
 
-      // Append all selected files
+      // Append all selected files with the key "media"
       files.forEach((file) => {
         formData.append("media", file);
       });
@@ -39,9 +39,7 @@ export default function CreatePost() {
     }
   };
 
-  if (!user) {
-    return <p className="p-4">You must be logged in to create posts.</p>;
-  }
+  if (!user) return <p className="p-4">You must be logged in to create posts.</p>;
 
   return (
     <div className="container mx-auto p-4 max-w-lg">
