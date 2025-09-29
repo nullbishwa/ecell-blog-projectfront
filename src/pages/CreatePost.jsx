@@ -23,17 +23,14 @@ export default function CreatePost() {
       formData.append("title", title);
       formData.append("content", content);
 
-      // Append all selected files with the key "media"
-      files.forEach((file) => {
-        formData.append("media", file);
-      });
+      // Append all selected files
+      files.forEach((file) => formData.append("media", file));
 
-      // Send request to backend
       const res = await api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Redirect to the newly created post's detail page
+      // Navigate directly to the newly created post using its slug
       navigate(`/posts/${res.data.slug}`);
     } catch (err) {
       console.error("Error creating post:", err);
