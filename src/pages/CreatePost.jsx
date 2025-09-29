@@ -7,7 +7,7 @@ import FileUpload from "../components/FileUpload";
 export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [files, setFiles] = useState([]); // multiple files
+  const [files, setFiles] = useState([]);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -23,15 +23,15 @@ export default function CreatePost() {
       formData.append("title", title);
       formData.append("content", content);
 
-      // Append all selected files
       files.forEach((file) => formData.append("media", file));
 
-      const res = await api.post("/posts", formData, {
+      // Create post
+      const { data } = await api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Navigate directly to the newly created post using its slug
-      navigate(`/posts/${res.data.slug}`);
+      // Navigate directly to the post using slug
+      navigate(`/posts/${data.slug}`);
     } catch (err) {
       console.error("Error creating post:", err);
       alert("Error creating post");
