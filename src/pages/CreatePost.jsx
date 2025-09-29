@@ -13,6 +13,11 @@ export default function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!title || !content) {
+      alert("Title and content are required");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("title", title);
@@ -29,7 +34,7 @@ export default function CreatePost() {
 
       navigate("/");
     } catch (err) {
-      console.error("Error creating post", err);
+      console.error("Error creating post:", err);
       alert("Error creating post");
     }
   };
@@ -54,7 +59,6 @@ export default function CreatePost() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        {/* File upload with multiple preview */}
         <FileUpload onFilesChange={setFiles} />
         <button
           type="submit"
