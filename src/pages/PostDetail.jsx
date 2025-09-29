@@ -1,67 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api";
-import CommentList from "../components/CommentList";
-import CommentForm from "../components/CommentForm";
-import LikeButton from "../components/LikeButton";
 
 export default function PostDetail() {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await api.get(`/posts/${slug}`);
-        setPost(res.data);
+        const { data } = await api.get(`/posts/${slug}`);
+        setPost(data);
       } catch (err) {
-        console.error("Error fetching post", err);
+        console.error("Error fetching post:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPost();
   }, [slug]);
 
-  const addComment = async (text) => {
-    try {
-      const res = await api.post(`/posts/${post._id}/comment`, { text });
-      setPost(res.data); // backend returns updated post
-    } catch (err) {
-      alert("Error adding comment");
-    }
-  };
-
-  if (!post) return <p className="p-4">Loading...</p>;
+  if (loading) return <p className="p-4">Loading post...</p>;
+  if (!post) return <p className="p-4">Post not found</p>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 max-w-2xl">
       <h1 className="text-2xl font-bold mb-2">{post.title}</h1>
+      <p className="text-gray-600 mb-4">By {post.author.username}</p>
       <p className="mb-4">{post.content}</p>
 
-      {/* Media Display */}
       {post.media && post.media.length > 0 && (
-        <div className="space-y-4 mb-6">
-          {post.media.map((file, i) =>
-            file.type === "image" ? (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {post.media.map((m) =>
+            m.type === "image" ? (
               <img
-                key={i}
-                src={file.url}
-                alt={post.title}
-                className="max-h-96 rounded object-cover w-full"
+                key={m.fileId}
+                src={m.url}
+                alt="Post media"
+                className="max-h-48 rounded object-cover"
               />
             ) : (
-              <video key={i} controls className="max-h-96 rounded w-full">
-                <source src={file.url} type={file.mimeType} />
-                Your browser does not support the video tag.
+              <video key={m.fileId} controls className="max-h-48 rounded">
+                <source src={m.url} type={m.mimeType} />
               </video>
             )
           )}
         </div>
       )}
-
-      <LikeButton initialLikes={post.likes?.length || 0} />
-      <h2 className="mt-6 font-bold">Comments</h2>
-      <CommentList comments={post.comments || []} />
-      <CommentForm onSubmit={addComment} />
     </div>
   );
 }
