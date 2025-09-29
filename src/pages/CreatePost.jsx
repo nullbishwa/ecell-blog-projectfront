@@ -28,11 +28,13 @@ export default function CreatePost() {
         formData.append("media", file);
       });
 
-      await api.post("/posts", formData, {
+      // Send request to backend
+      const res = await api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      navigate("/");
+      // Redirect to the newly created post's detail page
+      navigate(`/posts/${res.data.slug}`);
     } catch (err) {
       console.error("Error creating post:", err);
       alert("Error creating post");
