@@ -23,14 +23,16 @@ export default function CreatePost() {
       formData.append("title", title);
       formData.append("content", content);
 
-      files.forEach((file) => formData.append("media", file));
+      files.forEach((file) => {
+        formData.append("media", file);
+      });
 
-      // Create post
+      // ✅ Create post
       const { data } = await api.post("/posts", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Navigate directly to the post using slug
+      // ✅ Navigate using backend slug (important!)
       navigate(`/posts/${data.slug}`);
     } catch (err) {
       console.error("Error creating post:", err);
@@ -38,7 +40,9 @@ export default function CreatePost() {
     }
   };
 
-  if (!user) return <p className="p-4">You must be logged in to create posts.</p>;
+  if (!user) {
+    return <p className="p-4">You must be logged in to create posts.</p>;
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-lg">
