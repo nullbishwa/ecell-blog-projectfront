@@ -6,25 +6,25 @@ import CommentForm from "../components/CommentForm"
 import LikeButton from "../components/LikeButton"
 
 export default function PostDetail() {
-  const { id } = useParams()
+  const { slug } = useParams()
   const [post, setPost] = useState(null)
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await api.get(`/posts/${id}`)
+        const res = await api.get(`/posts/${slug}`)
         setPost(res.data)
       } catch (err) {
         console.error("Error fetching post", err)
       }
     }
     fetchPost()
-  }, [id])
+  }, [slug])
 
   const addComment = async (text) => {
     try {
-      const res = await api.post(`/posts/${id}/comments`, { text })
-      setPost({ ...post, comments: [...post.comments, res.data] })
+      const res = await api.post(`/posts/${post._id}/comment`, { text })
+      setPost(res.data) // backend returns updated post
     } catch (err) {
       alert("Error adding comment")
     }
@@ -36,10 +36,29 @@ export default function PostDetail() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-2">{post.title}</h1>
       <p className="mb-4">{post.content}</p>
-      {post.fileUrl && (
-        <img src={post.fileUrl} alt={post.title} className="mb-4 max-h-80 object-cover" />
+
+      {/* Media Display */}
+      {post.media && post.media.length > 0 && (
+        <div className="space-y-4 mb-6">
+          {post.media.map((file, i) =>
+            file.type.startsWith("image") ? (
+              <img
+                key={i}
+                src={file.url}
+                alt={post.title}
+                className="max-h-96 rounded object-cover w-full"
+              />
+            ) : (
+              <video key={i} controls className="max-h-96 rounded w-full">
+                <source src={file.url} type={file.type} />
+                Your browser does not support the video tag.
+              </video>
+            )
+          )}
+        </div>
       )}
-      <LikeButton initialLikes={post.likes || 0} />
+
+      <LikeButton initialLikes={post.likes?.length || 0} />
       <h2 className="mt-6 font-bold">Comments</h2>
       <CommentList comments={post.comments || []} />
       <CommentForm onSubmit={addComment} />
