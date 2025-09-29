@@ -1,36 +1,36 @@
-import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import api from "../api"
-import CommentList from "../components/CommentList"
-import CommentForm from "../components/CommentForm"
-import LikeButton from "../components/LikeButton"
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import api from "../api";
+import CommentList from "../components/CommentList";
+import CommentForm from "../components/CommentForm";
+import LikeButton from "../components/LikeButton";
 
 export default function PostDetail() {
-  const { slug } = useParams()
-  const [post, setPost] = useState(null)
+  const { slug } = useParams();
+  const [post, setPost] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await api.get(`/posts/${slug}`)
-        setPost(res.data)
+        const res = await api.get(`/posts/${slug}`);
+        setPost(res.data);
       } catch (err) {
-        console.error("Error fetching post", err)
+        console.error("Error fetching post", err);
       }
-    }
-    fetchPost()
-  }, [slug])
+    };
+    fetchPost();
+  }, [slug]);
 
   const addComment = async (text) => {
     try {
-      const res = await api.post(`/posts/${post._id}/comment`, { text })
-      setPost(res.data) // backend returns updated post
+      const res = await api.post(`/posts/${post._id}/comment`, { text });
+      setPost(res.data); // backend returns updated post with new comment
     } catch (err) {
-      alert("Error adding comment")
+      alert("Error adding comment");
     }
-  }
+  };
 
-  if (!post) return <p className="p-4">Loading...</p>
+  if (!post) return <p className="p-4">Loading...</p>;
 
   return (
     <div className="container mx-auto p-4">
@@ -63,5 +63,5 @@ export default function PostDetail() {
       <CommentList comments={post.comments || []} />
       <CommentForm onSubmit={addComment} />
     </div>
-  )
+  );
 }
