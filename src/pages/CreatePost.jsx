@@ -7,7 +7,7 @@ import FileUpload from "../components/FileUpload";
 export default function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [files, setFiles] = useState([]); // multiple files
+  const [files, setFiles] = useState([]); // For multiple files
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -39,8 +39,9 @@ export default function CreatePost() {
     }
   };
 
-  if (!user)
+  if (!user) {
     return <p className="p-4">You must be logged in to create posts.</p>;
+  }
 
   return (
     <div className="container mx-auto p-4 max-w-lg">
@@ -59,7 +60,7 @@ export default function CreatePost() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        <FileUpload onFilesChange={setFiles} />
+        <FileUpload files={files} setFiles={setFiles} />
         <button
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
