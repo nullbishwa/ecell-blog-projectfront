@@ -25,6 +25,7 @@ export default function CreatePost() {
 
       navigate("/")
     } catch (err) {
+      console.error("Error creating post", err)
       alert("Error creating post")
     }
   }
