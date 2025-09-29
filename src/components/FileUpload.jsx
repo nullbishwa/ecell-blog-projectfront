@@ -7,9 +7,7 @@ export default function FileUpload({ files, setFiles }) {
     const newPreviews = files.map((file) => URL.createObjectURL(file));
     setPreviews(newPreviews);
 
-    return () => {
-      newPreviews.forEach((url) => URL.revokeObjectURL(url));
-    };
+    return () => newPreviews.forEach((url) => URL.revokeObjectURL(url));
   }, [files]);
 
   const handleChange = (e) => {
@@ -29,7 +27,7 @@ export default function FileUpload({ files, setFiles }) {
       {previews.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
           {previews.map((preview, idx) =>
-            files[idx].type.startsWith("image") ? (
+            files[idx].type.startsWith("image/") ? (
               <img
                 key={idx}
                 src={preview}
@@ -39,7 +37,6 @@ export default function FileUpload({ files, setFiles }) {
             ) : (
               <video key={idx} controls className="max-h-48 rounded">
                 <source src={preview} type={files[idx].type} />
-                Your browser does not support the video tag.
               </video>
             )
           )}
