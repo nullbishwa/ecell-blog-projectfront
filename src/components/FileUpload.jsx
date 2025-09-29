@@ -1,23 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function FileUpload({ onFilesChange }) {
+export default function FileUpload({ files, setFiles }) {
   const [previews, setPreviews] = useState([]);
 
+  useEffect(() => {
+    // Generate previews for all selected files
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+
+    // Revoke object URLs on cleanup
+    return () => {
+      newPreviews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
+
   const handleChange = (e) => {
-    const files = Array.from(e.target.files);
-    onFilesChange(files); // pass array of files to parent
-
-    const newPreviews = files.map((file) => {
-      const reader = new FileReader();
-      return new Promise((resolve) => {
-        reader.onloadend = () => {
-          resolve({ url: reader.result, type: file.type });
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-
-    Promise.all(newPreviews).then((results) => setPreviews(results));
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
   };
 
   return (
@@ -30,22 +29,18 @@ export default function FileUpload({ onFilesChange }) {
         className="border p-2 rounded w-full"
       />
       {previews.length > 0 && (
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          {previews.map((file, idx) =>
-            file.type.startsWith("image") ? (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {previews.map((preview, idx) =>
+            preview.startsWith("blob:") && files[idx].type.startsWith("image") ? (
               <img
                 key={idx}
-                src={file.url}
-                alt={`Preview ${idx}`}
-                className="max-h-48 w-full object-cover rounded"
+                src={preview}
+                alt="Preview"
+                className="max-h-48 rounded object-cover"
               />
             ) : (
-              <video
-                key={idx}
-                controls
-                className="max-h-48 w-full rounded object-cover"
-              >
-                <source src={file.url} type={file.type} />
+              <video key={idx} controls className="max-h-48 rounded">
+                <source src={preview} type={files[idx].type} />
                 Your browser does not support the video tag.
               </video>
             )
